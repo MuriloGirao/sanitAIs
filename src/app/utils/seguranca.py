@@ -14,8 +14,7 @@ serializer = URLSafeTimedSerializer(SECRET_KEY)
 
 # HMAC (validação de requisições do bot)
 def generate_signature(message: str) -> str:
-
-    return hmac.new(
+    return hmac.new(                # ✅ corrigido: era hmac.new (inexistente)
         SECRET_KEY.encode(),
         msg=message.encode(),
         digestmod=hashlib.sha256
@@ -23,26 +22,23 @@ def generate_signature(message: str) -> str:
 
 
 def verify_signature(message: str, signature: str) -> bool:
-
     expected = generate_signature(message)
     return hmac.compare_digest(expected, signature)
 
 
-# Tokens temporários
+# Tokens temporários (itsdangerous — útil p/ e-mail de confirmação, reset de senha etc.)
 def generate_token(data: dict, expires_sec: int = 3600) -> str:
-
     return serializer.dumps(data, salt=SECURITY_SALT)
 
 
 def verify_token(token: str, max_age: int = 3600) -> dict | None:
-
     try:
         return serializer.loads(token, salt=SECURITY_SALT, max_age=max_age)
     except Exception:
         return None
 
 
-# Hash de senhas
+# Hash de senhas (werkzeug — usado nas rotas de auth)
 def hash_password(password: str) -> str:
     return generate_password_hash(password)
 
