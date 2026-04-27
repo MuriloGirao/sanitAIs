@@ -17,20 +17,20 @@ def create_app(config_name="default"):
     app = Flask(__name__)
     app.config.from_object(config[config_name])
 
-    # Extensões
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
     bcrypt.init_app(app)
 
-    # CORS — permite o front Vite (porta 5173) consumir a API
     CORS(app, resources={r"/api/*": {"origins": ["http://localhost:5173", "http://localhost:3000"]}})
 
-    # Blueprints
     from app.routes.auth import auth_bp
-    app.register_blueprint(auth_bp, url_prefix="/api/auth")
+    from app.routes.horarios import horarios_bp
 
-    # Importa modelos para o Migrate detectar
-    from app.models import user  # noqa: F401
+    app.register_blueprint(auth_bp,     url_prefix="/api/auth")
+    app.register_blueprint(horarios_bp, url_prefix="/api/horarios")
+
+    # Importa todos os models para o Migrate detectar
+    from app.models.models import Usuario, Paciente, Horario, Agendamento, Sessao  # noqa: F401
 
     return app
